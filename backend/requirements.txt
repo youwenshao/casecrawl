@@ -1,0 +1,38 @@
+# FastAPI and server
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.9
+websockets>=12.0
+
+# Database
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.29.0
+alembic>=1.13.0
+
+# Pydantic
+pydantic>=2.6.0
+pydantic-settings>=2.1.0
+
+# Celery and task queue
+celery>=5.3.0
+redis>=5.0.0
+
+# Playwright and stealth
+playwright>=1.41.0
+playwright-stealth>=2.0.0
+
+# Data processing
+pandas>=2.2.0
+openpyxl>=3.1.0
+
+# Logging
+structlog>=24.1.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+httpx>=0.26.0
+
+# Security
+python-jose[cryptography]>=3.3.0
+passlib>=1.7.4

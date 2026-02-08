@@ -34,6 +34,48 @@ Content-Type: multipart/form-data
 }
 ```
 
+#### Create Batch from Manual Entry
+```http
+POST /batches/manual
+Content-Type: application/json
+```
+
+**Parameters:**
+- `cases` (required): Array of case objects
+  - `party_name` (required): Party names (e.g., "Smith v Jones")
+  - `citation` (optional): Case citation (e.g., "[2020] HKCFI 123")
+  - `notes` (optional): Optional notes
+- `auto_download_exact_matches` (optional, default: true): Auto-download exact matches
+- `user_id` (optional): User identifier
+
+**Request Body:**
+```json
+{
+  "cases": [
+    {
+      "party_name": "Smith v Jones",
+      "citation": "[2020] HKCFI 123",
+      "notes": "Important case"
+    }
+  ],
+  "auto_download_exact_matches": true
+}
+```
+
+**Response:**
+```json
+{
+  "batch_id": "uuid",
+  "total_cases": 1,
+  "message": "Batch created successfully with 1 cases"
+}
+```
+
+**Limits:**
+- Maximum 100 cases per request
+- Party name is required for each case
+- Supports same citation formats as file upload
+
 #### Get Batch
 ```http
 GET /batches/{batch_id}

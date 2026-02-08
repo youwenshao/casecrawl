@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { BatchJob, BatchStatistics, CaseJob, SearchResultItem } from '../types'
+import { BatchJob, BatchStatistics, CaseJob, ManualBatchCreateRequest, SearchResultItem } from '../types'
 
 const api = axios.create({
   baseURL: '/api/v1',
@@ -22,6 +22,14 @@ export const createBatch = async (
       'Content-Type': 'multipart/form-data',
     },
   })
+  return response.data
+}
+
+// Manual Batch API
+export const createManualBatch = async (
+  request: ManualBatchCreateRequest
+): Promise<{ batch_id: string; total_cases: number; message: string }> => {
+  const response = await api.post('/batches/manual', request)
   return response.data
 }
 

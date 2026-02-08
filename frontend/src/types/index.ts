@@ -14,6 +14,19 @@ export type CaseStatus =
 
 export type CitationMatchType = 'exact' | 'similar_volume' | 'year_match_only' | 'none'
 
+// Manual case entry types
+export interface ManualCaseEntry {
+  party_name: string
+  citation?: string
+  notes?: string
+}
+
+export interface ManualBatchCreateRequest {
+  cases: ManualCaseEntry[]
+  auto_download_exact_matches: boolean
+  user_id?: string
+}
+
 export interface BatchJob {
   id: string
   status: BatchStatus

@@ -7,6 +7,8 @@ from app.schemas.batch import (
     BatchJobResponse,
     BatchStatistics,
     BatchUploadResponse,
+    ManualBatchCreateRequest,
+    ManualCaseEntry,
 )
 from app.schemas.case import (
     CaseDownloadResponse,
@@ -34,6 +36,8 @@ __all__ = [
     "BatchJobListResponse",
     "BatchUploadResponse",
     "BatchStatistics",
+    "ManualBatchCreateRequest",
+    "ManualCaseEntry",
     # Case schemas
     "CaseJobCreate",
     "CaseJobResponse",

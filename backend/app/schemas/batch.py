@@ -10,6 +10,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.core.constants import BatchStatus
 
 
+class ManualCaseEntry(BaseModel):
+    """Schema for a single manual case entry."""
+    party_name: str = Field(..., min_length=1, description="Party names (e.g., 'Smith v Jones')")
+    citation: Optional[str] = Field(default=None, description="Case citation (e.g., '[2020] HKCFI 123')")
+    notes: Optional[str] = Field(default=None, description="Optional notes")
+
+
 class BatchJobBase(BaseModel):
     """Base batch job schema."""
     model_config = ConfigDict(from_attributes=True)
@@ -17,6 +24,13 @@ class BatchJobBase(BaseModel):
 
 class BatchJobCreate(BaseModel):
     """Schema for creating a new batch job."""
+    auto_download_exact_matches: bool = Field(default=True)
+    user_id: Optional[str] = None
+
+
+class ManualBatchCreateRequest(BaseModel):
+    """Schema for creating a batch from manually entered cases."""
+    cases: List[ManualCaseEntry] = Field(..., min_length=1, max_length=100, description="List of case entries")
     auto_download_exact_matches: bool = Field(default=True)
     user_id: Optional[str] = None
 

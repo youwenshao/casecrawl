@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { Upload, FileSpreadsheet, Check, AlertCircle, Download } from 'lucide-react'
+import { Upload, FileSpreadsheet, AlertCircle, Download, Keyboard, FileUp } from 'lucide-react'
 import { createBatch } from '../utils/api'
 
 const BatchUpload = () => {
@@ -57,6 +57,23 @@ const BatchUpload = () => {
         <p className="text-gray-600">
           Upload a CSV or Excel file with case information to begin crawling
         </p>
+      </div>
+
+      {/* Entry Method Toggle */}
+      <div className="mb-8 bg-gray-100 rounded-lg p-1 flex">
+        <button
+          className="flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md bg-white text-sm font-medium text-blue-600 shadow-sm"
+        >
+          <FileUp className="w-4 h-4" />
+          <span>File Upload</span>
+        </button>
+        <button
+          onClick={() => navigate('/manual-entry')}
+          className="flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <Keyboard className="w-4 h-4" />
+          <span>Manual Entry</span>
+        </button>
       </div>
 
       {/* Template Download */}

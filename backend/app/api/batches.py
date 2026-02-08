@@ -2,7 +2,7 @@
 API endpoints for batch operations.
 """
 import io
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 import pandas as pd
@@ -20,6 +20,8 @@ from app.schemas import (
     BatchUploadResponse,
     CaseJobListResponse,
     CaseJobResponse,
+    ManualBatchCreateRequest,
+    ManualCaseEntry,
 )
 from app.utils.citation_parser import get_citation_parser
 from app.utils.party_names import get_party_handler
@@ -161,6 +163,101 @@ async def create_batch(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to process file: {str(e)}",
+        )
+
+
+@router.post(
+    "/manual",
+    response_model=BatchUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create batch from manually entered cases",
+)
+async def create_manual_batch(
+    request: ManualBatchCreateRequest,
+    db: AsyncSession = Depends(get_db),
+) -> BatchUploadResponse:
+    """
+    Create a batch from manually entered case information.
+    
+    This endpoint allows users to enter case information directly via the frontend
+    without needing to upload a CSV/Excel file.
+    
+    Each case requires:
+    - party_name: Party names (e.g., "Smith v Jones")
+    - citation: Case citation (optional, e.g., "[2020] HKCFI 123")
+    - notes: Optional notes
+    
+    Maximum 100 cases per batch.
+    """
+    logger.info(
+        "manual_batch_creation_started",
+        case_count=len(request.cases),
+        user_id=request.user_id,
+        auto_download=request.auto_download_exact_matches,
+    )
+    
+    try:
+        # Create batch job
+        batch = BatchJob(
+            status=BatchStatus.PENDING,
+            total_cases=len(request.cases),
+            user_id=request.user_id,
+            auto_download_exact_matches=request.auto_download_exact_matches,
+        )
+        db.add(batch)
+        await db.flush()  # Get batch ID
+        
+        # Create case jobs
+        citation_parser = get_citation_parser()
+        party_handler = get_party_handler()
+        
+        for case_entry in request.cases:
+            party_names = case_entry.party_name.strip()
+            citation = case_entry.citation.strip() if case_entry.citation else None
+            
+            if not party_names:
+                continue
+            
+            # Parse citation
+            parsed_citation = citation_parser.parse(citation) if citation else None
+            
+            # Generate party name variations
+            party_variations = party_handler.generate_variations(party_names)
+            
+            case_job = CaseJob(
+                batch_id=batch.id,
+                party_names_raw=party_names,
+                party_names_normalized={
+                    "full": party_variations.full,
+                    "abbreviated": party_variations.abbreviated,
+                    "variations": party_variations.variations,
+                },
+                citation_raw=citation,
+                citation_normalized=parsed_citation.normalized if parsed_citation else None,
+                year_extracted=parsed_citation.year if parsed_citation else None,
+                jurisdiction=parsed_citation.jurisdiction if parsed_citation else None,
+            )
+            db.add(case_job)
+        
+        await db.commit()
+        
+        logger.info(
+            "manual_batch_creation_completed",
+            batch_id=str(batch.id),
+            total_cases=batch.total_cases,
+        )
+        
+        return BatchUploadResponse(
+            batch_id=batch.id,
+            total_cases=batch.total_cases,
+            message=f"Batch created successfully with {batch.total_cases} cases",
+        )
+        
+    except Exception as e:
+        logger.error("manual_batch_creation_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create batch: {str(e)}",
         )
 
 
